@@ -139,17 +139,6 @@ def RenderCityHomePage():
 
 @app.route('/simulate', methods=['POST'])
 def RenderVideo():
-    # Foydalanuvchi tizimga kiritilganligini tekshiramiz
-    if 'current_user' not in session:
-        return redirect(url_for('RenderAdminLoginPage'))
-    
-    # Agar flag oldin hisoblangan bo'lsa, shu natijani qaytaramiz
-    if session.get('flag_solved'):
-        video_source = session.get('flag_video', 'Busted.mp4')
-        message = session.get('flag_message', '')
-        return render_template('CTFHomePage.html', video_source=video_source, message=message)
-    
-    # Flag hali hisoblanmagan bo'lsa, simulyatsiyani bajaramiz:
     car1 = generate_random_string()
     car2 = generate_random_string()
     car3 = generate_random_string()
@@ -157,20 +146,17 @@ def RenderVideo():
     id_image = generateRandomIdImage(app.blockedid)
     id, id_confidence = FirstGateCheck(id_image)
     result = SecondGateCheck(id, id_image, id_confidence, validation_check=False)
+
     if result:
         video_source = 'Bypassed.mp4'
-        message = ("AI Model Bypassed!, Cyber_ctf[D4LyU98ZJToDykWn7xpnXB]. "
-                   "Simulation was run with vehicles with license plates "
-                   f"{car1}, {car2}, {car3}, {car4}, 43126")
+        flag = "HEIST_OWNED"
+        message = f"AI Model Bypassed!, Flag[{flag}]. Simulation was run with vehicles with license plates {car1}, {car2}, {car3}, {car4}, {app.blockedid}"
+        session['ctf_flag'] = flag  # FLAG faqat shu user sessionida saqlanadi
     else:
         video_source = 'Busted.mp4'
-        message = ("Busted!, Simulation was run with vehicles with license plates "
-                   f"{car1}, {car2}, {car3}, {car4}, 43126")
-    
-    # Flag natijasini foydalanuvchi sessioniga yozamiz
-    session['flag_solved'] = True
-    session['flag_message'] = message
-    session['flag_video'] = video_source
+        message = f"Busted!, Simulation was run with vehicles with license plates {car1}, {car2}, {car3}, {car4}, {app.blockedid}"
+        session.pop('ctf_flag', None)  # Oldingi flagni o'chirish
+
     return render_template('CTFHomePage.html', video_source=video_source, message=message)
 
 
