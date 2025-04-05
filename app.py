@@ -159,12 +159,19 @@ def RenderVideo():
         session['flag'] = flag
     else:
         video_source = 'Busted.mp4'
+        flag = None
         message = (
             f"Busted!, Simulation was run with vehicles with license plates "
             f"{car1}, {car2}, {car3}, {car4}, {app.blockedid}"
         )
         # session['flag'] allaqachon pop qilingan
-    return render_template('CTFHomePage.html', video_source=video_source, message=message)
+
+    return render_template(
+        'CTFHomePage.html',
+        video_source=video_source,
+        message=message,
+        flag=flag
+    )
 
 
 @app.route('/Reset', methods=['GET'])
