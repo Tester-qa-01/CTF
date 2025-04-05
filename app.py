@@ -3,14 +3,14 @@ import zipfile
 from flask import jsonify, Flask, Response, request, render_template, flash, redirect, url_for, send_from_directory, send_file, session
 import json
 from functools import wraps
-
 import tensorflow as tf
 import numpy as np
 import h5py
 from tensorflow import keras
 import random
-
 import os
+from datetime import timedelta
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import logging
@@ -90,7 +90,6 @@ def FirstGateCheck(id_image):
 
 
 def SecondGateCheck(id,  id_image, id_confidence, validation_check=True):
-
     
     smodel = os.path.join('models', 'SecondGateModel.h5')
     second_model = tf.keras.models.load_model(smodel)
@@ -102,14 +101,11 @@ def SecondGateCheck(id,  id_image, id_confidence, validation_check=True):
             if round(pred[0][int(id[i])], 1) == round(id_confidence[i], 1):
                 pass
             else:
-                #print("'s ID was misclassified.")
                 return False
         validated_id = validated_id + str(np.argmax(pred))
     if validated_id == app.blockedid:
-        #print("ID banned.")
         return False
     else:
-        #print("Bypassed")
         return True
 
 
@@ -143,6 +139,7 @@ def RenderVideo():
     car2 = generate_random_string()
     car3 = generate_random_string()
     car4 = generate_random_string()
+    
     id_image = generateRandomIdImage(app.blockedid)
     id, id_confidence = FirstGateCheck(id_image)
     result = SecondGateCheck(id, id_image, id_confidence, validation_check=False)
@@ -168,26 +165,19 @@ def RenderVideo():
 
 @app.route('/Reset', methods=['GET'])
 def ResetCTF():
-    # Define the paths
     models_folder = 'models'
     first_gate_model_path = os.path.join(models_folder, 'FirstGateModel.h5')
     second_gate_model_path = os.path.join(models_folder, 'SecondGateModel.h5')
 
-    # Check if "SecondGateModel.h5" exists and delete it
     if os.path.exists(second_gate_model_path):
         os.remove(second_gate_model_path)
 
-    # Copy and rename "FirstGateModel.h5" to "SecondGateModel.h5"
     shutil.copy(first_gate_model_path, second_gate_model_path)
     
-    # Flag natijalarini tozalash (har bir foydalanuvchiga alohida flag natijasi)
-    session.pop('flag_solved', None)
-    session.pop('flag_message', None)
-    session.pop('flag_video', None)
-    
+    session.pop('ctf_flag', None)  # Flagni tozalash
+
     video_source = 'Busted.mp4'
     return render_template('CTFHomePage.html', video_source=video_source, reset_message="[CTF Reset was Successful]")
-
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -206,21 +196,10 @@ def RenderAdminLoginPage():
 @app.route('/home')
 def PostHome():
     if 'current_user' in session:
-        # Retrieve the current user's name from the session
         current_user = session['current_user']
         return render_template('home.html', current_user=current_user)
     else:
         return redirect(url_for('RenderAdminLoginPage'))
-
-
-@app.route('/notification', methods=['GET'])
-def getnotification():
-
-    if request.method == 'GET':
-        if 'current_user' in session:
-            current_user = session['current_user']
-            return render_template('home.html', notificationmessage='Devloper: We need to look for alternatives such as CIFAR100 and retrain AI cameras. However for ease of development we are hoping to stick with Keras in second checkpoint.', current_user=current_user)
-    return redirect(url_for('RenderAdminLoginPage'))
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -231,13 +210,10 @@ def upload_config():
             if 'config_file' in request.files:
                 config_file = request.files['config_file']
                 if config_file.filename != '' and config_file.filename.endswith('.zip'):
-                    file_path = os.path.join(
-                        app.config['UPLOAD_FOLDER'], 'user_file.zip')
-                    # Stream the file data and save it
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'user_file.zip')
                     with open(file_path, 'wb') as file:
                         while True:
-                            chunk = config_file.stream.read(
-                                10485760) 
+                            chunk = config_file.stream.read(10485760)  # Read in chunks
                             if not chunk:
                                 break
                             file.write(chunk)
@@ -259,54 +235,34 @@ def train_model():
             current_user = session['current_user']
             if 'current_user' in session and 'config_uploaded' in session:
                 upload_folder = app.config['UPLOAD_FOLDER']
-                # Check if there is an existing unzipped_user_file folder and delete it if it exists
-                if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], 'unzipped_user_file')):
-                    shutil.rmtree(os.path.join(
-                        app.config['UPLOAD_FOLDER'], 'unzipped_user_file'))
-                # Check if the uploaded file exists in the upload folder
-                uploaded_file_path = os.path.join(
-                    upload_folder, 'user_file.zip')
+                if os.path.exists(os.path.join(upload_folder, 'unzipped_user_file')):
+                    shutil.rmtree(os.path.join(upload_folder, 'unzipped_user_file'))
+                uploaded_file_path = os.path.join(upload_folder, 'user_file.zip')
                 if not os.path.exists(uploaded_file_path):
                     return render_template('home.html', message='File Not Found.', current_user=current_user, config_uploaded=False)
-                # Now, unzip the uploaded file
-                unzip_folder = os.path.join(
-                    upload_folder, 'unzipped_user_file')
+                unzip_folder = os.path.join(upload_folder, 'unzipped_user_file')
                 os.makedirs(unzip_folder, exist_ok=True)
                 with zipfile.ZipFile(uploaded_file_path, 'r') as zip_ref:
                     zip_ref.extractall(unzip_folder)
-                # Check if there's a single .h5 file in the unzipped folder and no other files with other extensions
-                h5_files = [f for f in os.listdir(
-                    unzip_folder) if f.endswith('.h5')]
-                other_files = [f for f in os.listdir(
-                    unzip_folder) if not f.endswith('.h5')]
+                h5_files = [f for f in os.listdir(unzip_folder) if f.endswith('.h5')]
+                other_files = [f for f in os.listdir(unzip_folder) if not f.endswith('.h5')]
                 if len(h5_files) == 1 and len(other_files) <= 0:
-                    # Create an instance of the model
                     model = create_model()
                     h5_file_name = h5_files[0]
-                    # Load the preprocessed dataset from the HDF5 file
-                    with h5py.File('uploads/unzipped_user_file/' +h5_file_name, 'r') as file:
+                    with h5py.File('uploads/unzipped_user_file/' + h5_file_name, 'r') as file:
                         x_train = file['x_train'][:]
                         y_train = file['y_train'][:]
                         x_test = file['x_test'][:]
                         y_test = file['y_test'][:]
-                    # Train the model
                     model.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test), verbose=1)
-                    # Save the trained model to a file
                     model.save('models/'+'SecondGateModel.h5')
                     return render_template('home.html', message='Model Trained Successfully.', current_user=current_user, config_uploaded=True)
                 else:
                     return render_template('home.html', message='Invalid File Formats Detected. Stopping Model Training.', current_user=current_user, config_uploaded=False)
             else:
                 return redirect(url_for('PostHome', message='Cannot train model. Config file not uploaded or user not authenticated.'))
-    return redirect(url_for('RenderAdminLoginPage'))
-
-
-@app.route('/logout')
-def logout():
-    # Remove the current user from the session
-    session.pop('current_user', None)
-    return redirect(url_for('RenderAdminLoginPage'))
+    return redirect(url_for('PostHome'))
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
