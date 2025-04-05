@@ -198,30 +198,6 @@ def ResetCTF():
 
 
 
-@app.route('/Reset', methods=['GET'])
-def ResetCTF():
-    # Define the paths
-    models_folder = 'models'
-    first_gate_model_path = os.path.join(models_folder, 'FirstGateModel.h5')
-    second_gate_model_path = os.path.join(models_folder, 'SecondGateModel.h5')
-
-    # Check if "SecondGateModel.h5" exists and delete it
-    if os.path.exists(second_gate_model_path):
-        os.remove(second_gate_model_path)
-
-    # Copy and rename "FirstGateModel.h5" to "SecondGateModel.h5"
-    shutil.copy(first_gate_model_path, second_gate_model_path)
-    
-    # Flag natijalarini tozalash (har bir foydalanuvchiga alohida flag natijasi)
-    session.pop('flag_solved', None)
-    session.pop('flag_message', None)
-    session.pop('flag_video', None)
-    
-    video_source = 'Busted.mp4'
-    return render_template('CTFHomePage.html', video_source=video_source, reset_message="[CTF Reset was Successful]")
-
-
-
 @app.route('/admin', methods=['GET', 'POST'])
 def RenderAdminLoginPage():
     if request.method == 'POST':
