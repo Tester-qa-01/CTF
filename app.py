@@ -135,6 +135,9 @@ def RenderCityHomePage():
 
 @app.route('/simulate', methods=['POST'])
 def RenderVideo():
+    # Har safar simulate bosilganda eski flagni tozalaymiz
+    session.pop('flag', None)
+
     car1 = generate_random_string()
     car2 = generate_random_string()
     car3 = generate_random_string()
@@ -142,23 +145,25 @@ def RenderVideo():
 
     id_image = generateRandomIdImage(app.blockedid)
     id, id_confidence = FirstGateCheck(id_image)
-    result = SecondGateCheck(id, id_image, id_confidence, validation_check=False)
+    # Asl tekshiruvni yoqamiz (validation_check=True)
+    result = SecondGateCheck(id, id_image, id_confidence, validation_check=True)
 
     if result:
         video_source = 'Bypassed.mp4'
         flag = "HEIST_OWNED"
-        message = f"AI Model Bypassed!, Flag[{flag}]. Simulation was run with vehicles with license plates {car1}, {car2}, {car3}, {car4}, {app.blockedid}"
-
-        # Save the flag in session for the current user
+        message = (
+            f"AI Model Bypassed!, Flag[{flag}]. "
+            f"Simulation was run with vehicles with license plates "
+            f"{car1}, {car2}, {car3}, {car4}, {app.blockedid}"
+        )
         session['flag'] = flag
-
     else:
         video_source = 'Busted.mp4'
-        message = f"Busted!, Simulation was run with vehicles with license plates {car1}, {car2}, {car3}, {car4}, {app.blockedid}"
-
-        # Remove the flag from session if the user fails
-        session.pop('flag', None)
-
+        message = (
+            f"Busted!, Simulation was run with vehicles with license plates "
+            f"{car1}, {car2}, {car3}, {car4}, {app.blockedid}"
+        )
+        # session['flag'] allaqachon pop qilingan
     return render_template('CTFHomePage.html', video_source=video_source, message=message)
 
 
@@ -194,7 +199,7 @@ def RenderAdminLoginPage():
 def PostHome():
     if 'current_user' in session:
         current_user = session['current_user']
-        # Show the flag only if the user has it in their session
+        # Foydalanuvchi simulate tugmasini bosgan boʻlsa session['flag'] bor, yoʻq boʻlsa None
         flag = session.get('flag', None)
         return render_template('home.html', current_user=current_user, flag=flag)
     else:
