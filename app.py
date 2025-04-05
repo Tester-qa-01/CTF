@@ -139,7 +139,7 @@ def RenderVideo():
     car2 = generate_random_string()
     car3 = generate_random_string()
     car4 = generate_random_string()
-    
+
     id_image = generateRandomIdImage(app.blockedid)
     id, id_confidence = FirstGateCheck(id_image)
     result = SecondGateCheck(id, id_image, id_confidence, validation_check=False)
