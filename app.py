@@ -139,27 +139,39 @@ def RenderCityHomePage():
 
 @app.route('/simulate', methods=['POST'])
 def RenderVideo():
-
+    # Foydalanuvchi tizimga kiritilganligini tekshiramiz
+    if 'current_user' not in session:
+        return redirect(url_for('RenderAdminLoginPage'))
+    
+    # Agar flag oldin hisoblangan bo'lsa, shu natijani qaytaramiz
+    if session.get('flag_solved'):
+        video_source = session.get('flag_video', 'Busted.mp4')
+        message = session.get('flag_message', '')
+        return render_template('CTFHomePage.html', video_source=video_source, message=message)
+    
+    # Flag hali hisoblanmagan bo'lsa, simulyatsiyani bajaramiz:
     car1 = generate_random_string()
     car2 = generate_random_string()
     car3 = generate_random_string()
     car4 = generate_random_string()
     id_image = generateRandomIdImage(app.blockedid)
     id, id_confidence = FirstGateCheck(id_image)
-    result = SecondGateCheck(id, id_image, id_confidence,
-                            validation_check=False)
+    result = SecondGateCheck(id, id_image, id_confidence, validation_check=False)
     if result:
         video_source = 'Bypassed.mp4'
-        message = "AI Model Bypassed!, Cyber_ctf[D4LyU98ZJToDykWn7xpnXB]. Simulation was run with vechicles with license plates " + car1 +", " + car2 +", " + car3 +", " + car4 +", " + "43126"
+        message = ("AI Model Bypassed!, Cyber_ctf[D4LyU98ZJToDykWn7xpnXB]. "
+                   "Simulation was run with vehicles with license plates "
+                   f"{car1}, {car2}, {car3}, {car4}, 43126")
     else:
         video_source = 'Busted.mp4'
-        message = "Busted!, Simulation was run with vechicles with license plates " + car1 +", " + car2 +", " + car3 +", " + car4 +", " + "43126"
+        message = ("Busted!, Simulation was run with vehicles with license plates "
+                   f"{car1}, {car2}, {car3}, {car4}, 43126")
+    
+    # Flag natijasini foydalanuvchi sessioniga yozamiz
+    session['flag_solved'] = True
+    session['flag_message'] = message
+    session['flag_video'] = video_source
     return render_template('CTFHomePage.html', video_source=video_source, message=message)
-
-
-@app.route('/CityPolice', methods=['GET'])
-def RenderHomePage():
-    return render_template('index.html')
 
 
 @app.route('/Reset', methods=['GET'])
@@ -175,8 +187,39 @@ def ResetCTF():
 
     # Copy and rename "FirstGateModel.h5" to "SecondGateModel.h5"
     shutil.copy(first_gate_model_path, second_gate_model_path)
+    
+    # Flag natijalarini tozalash (har bir foydalanuvchiga alohida flag natijasi)
+    session.pop('flag_solved', None)
+    session.pop('flag_message', None)
+    session.pop('flag_video', None)
+    
     video_source = 'Busted.mp4'
     return render_template('CTFHomePage.html', video_source=video_source, reset_message="[CTF Reset was Successful]")
+
+
+
+@app.route('/Reset', methods=['GET'])
+def ResetCTF():
+    # Define the paths
+    models_folder = 'models'
+    first_gate_model_path = os.path.join(models_folder, 'FirstGateModel.h5')
+    second_gate_model_path = os.path.join(models_folder, 'SecondGateModel.h5')
+
+    # Check if "SecondGateModel.h5" exists and delete it
+    if os.path.exists(second_gate_model_path):
+        os.remove(second_gate_model_path)
+
+    # Copy and rename "FirstGateModel.h5" to "SecondGateModel.h5"
+    shutil.copy(first_gate_model_path, second_gate_model_path)
+    
+    # Flag natijalarini tozalash (har bir foydalanuvchiga alohida flag natijasi)
+    session.pop('flag_solved', None)
+    session.pop('flag_message', None)
+    session.pop('flag_video', None)
+    
+    video_source = 'Busted.mp4'
+    return render_template('CTFHomePage.html', video_source=video_source, reset_message="[CTF Reset was Successful]")
+
 
 
 @app.route('/admin', methods=['GET', 'POST'])
