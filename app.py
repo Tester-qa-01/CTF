@@ -151,11 +151,17 @@ def RenderVideo():
         video_source = 'Bypassed.mp4'
         flag = "HEIST_OWNED"
         message = f"AI Model Bypassed!, Flag[{flag}]. Simulation was run with vehicles with license plates {car1}, {car2}, {car3}, {car4}, {app.blockedid}"
-        session['ctf_flag'] = flag  # FLAG faqat shu user sessionida saqlanadi
+        
+        # Flagni faqat birinchi marta olinganda saqlaymiz
+        if 'ctf_flag' not in session:
+            session['ctf_flag'] = flag  # Faol foydalanuvchi uchun flagni sessiyada saqlash
+
     else:
         video_source = 'Busted.mp4'
         message = f"Busted!, Simulation was run with vehicles with license plates {car1}, {car2}, {car3}, {car4}, {app.blockedid}"
-        session.pop('ctf_flag', None)  # Oldingi flagni o'chirish
+        
+        # Agar flag topilsa, uni o‘chiramiz
+        session.pop('ctf_flag', None)  # Flagni faqat muvaffaqiyatsiz holatda o‘chirish
 
     return render_template('CTFHomePage.html', video_source=video_source, message=message)
 
