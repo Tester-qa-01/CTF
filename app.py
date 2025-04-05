@@ -148,17 +148,16 @@ def RenderVideo():
         video_source = 'Bypassed.mp4'
         flag = "HEIST_OWNED"
         message = f"AI Model Bypassed!, Flag[{flag}]. Simulation was run with vehicles with license plates {car1}, {car2}, {car3}, {car4}, {app.blockedid}"
-        
-        # Flagni faqat birinchi marta olinganda saqlaymiz
-        if 'ctf_flag' not in session:
-            session['ctf_flag'] = flag  # Faol foydalanuvchi uchun flagni sessiyada saqlash
+
+        # Save the flag in session for the current user
+        session['flag'] = flag
 
     else:
         video_source = 'Busted.mp4'
         message = f"Busted!, Simulation was run with vehicles with license plates {car1}, {car2}, {car3}, {car4}, {app.blockedid}"
-        
-        # Agar flag topilsa, uni o‘chiramiz
-        session.pop('ctf_flag', None)  # Flagni faqat muvaffaqiyatsiz holatda o‘chirish
+
+        # Remove the flag from session if the user fails
+        session.pop('flag', None)
 
     return render_template('CTFHomePage.html', video_source=video_source, message=message)
 
@@ -174,8 +173,6 @@ def ResetCTF():
 
     shutil.copy(first_gate_model_path, second_gate_model_path)
     
-    session.pop('ctf_flag', None)  # Flagni tozalash
-
     video_source = 'Busted.mp4'
     return render_template('CTFHomePage.html', video_source=video_source, reset_message="[CTF Reset was Successful]")
 
@@ -197,7 +194,9 @@ def RenderAdminLoginPage():
 def PostHome():
     if 'current_user' in session:
         current_user = session['current_user']
-        return render_template('home.html', current_user=current_user)
+        # Show the flag only if the user has it in their session
+        flag = session.get('flag', None)
+        return render_template('home.html', current_user=current_user, flag=flag)
     else:
         return redirect(url_for('RenderAdminLoginPage'))
 
