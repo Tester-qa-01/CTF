@@ -101,40 +101,32 @@ def RenderCityHomePage():
 
 @app.route('/simulate', methods=['POST'])
 def RenderVideo():
-    session.pop('flag', None)
-
     car1 = generate_random_string()
     car2 = generate_random_string()
     car3 = generate_random_string()
     car4 = generate_random_string()
-
+    
+    # Avvalgi modelga asoslangan tekshiruvlar
     id_image = generateRandomIdImage(app.blockedid)
-    id_str, id_confidence = FirstGateCheck(id_image)
-    result = SecondGateCheck(id_str, id_image, id_confidence, validation_check=True)
-
+    id, id_confidence = FirstGateCheck(id_image)
+    result = SecondGateCheck(id, id_image, id_confidence, validation_check=False)
+    
     if result:
+        # Agar foydalanuvchi flagni hali olmagan bo'lsa, uni yarating
+        if "user_flag" not in session:
+            unique_part = generate_random_string() + generate_random_string()  # Misol uchun 10 ta belgidan iborat
+            session["user_flag"] = f"HEIST{{{unique_part}}}"
         video_source = 'Bypassed.mp4'
-        flag = "HEIST_OWNED"
-        message = (
-            f"AI Model Bypassed!, Flag[{flag}]. "
-            f"Simulation was run with vehicles with license plates "
-            f"{car1}, {car2}, {car3}, {car4}, {app.blockedid}"
-        )
-        session['flag'] = flag
+        message = ("AI Model Bypassed! Your flag: " + session["user_flag"] + 
+                   ". Simulation was run with vehicles with license plates " +
+                   f"{car1}, {car2}, {car3}, {car4}")
     else:
         video_source = 'Busted.mp4'
-        flag = None
-        message = (
-            f"Busted!, Simulation was run with vehicles with license plates "
-            f"{car1}, {car2}, {car3}, {car4}, {app.blockedid}"
-        )
+        message = ("Busted! Simulation was run with vehicles with license plates " +
+                   f"{car1}, {car2}, {car3}, {car4}")
+    
+    return render_template('CTFHomePage.html', video_source=video_source, message=message)
 
-    return render_template(
-        'CTFHomePage.html',
-        video_source=video_source,
-        message=message,
-        flag=flag
-    )
 
 @app.route('/Reset', methods=['GET'])
 def ResetCTF():

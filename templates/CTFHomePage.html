@@ -12,6 +12,7 @@
             padding: 0;
         }
         header {
+
             background-color: #1f2937;
             color: #ffffff;
             padding: 20px 0;
@@ -54,81 +55,72 @@
             color: #ffffff;
             font-size: 14px;
             line-height: 1.6;
+
         }
         .video-container {
             display: flex;
             justify-content: center;
+            /* Center horizontally */
+            //align-items: center; /* Center vertically */
             height: 100vh;
-        }
-        .flag {
-            margin: 20px;
-            padding: 10px;
-            background: #222;
-            color: #0f0;
-            border-radius: 5px;
-            font-size: 18px;
+            /* Adjust to your desired height */
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Sun'iy intelektni aldash</h1>
+        <h1>Heist ML CTF Challenge</h1>
     </header>
     <nav>
         <ul>
-            <li><a href="https://cyber-bro.uz/">Site</a></li>
+            <li><a href="https://github.com/alexdevassy/Machine_Learning_CTF_Challenges">Github</a></li>
+
             <li><a href="/CityPolice"><span style="color: red;">Start Challenge</span></a></li>
+            <!-- Link to start the CTF -->
             <li><a href="/Reset">Reset</a></li>
         </ul>
     </nav>
     <div class="container">
-        <h2 style="display: inline;">Xush kelibsiz Sun'iy intelektni aldash CTF ga</h2>
-        <p style="display: inline; margin-left: 50px;">
-            <span id="message">{{ reset_message }}</span>
+        <h2 style="display: inline;">Welcome to the Heist ML Capture The Flag Challenge</h2>
+        <p style="display: inline; margin-left: 50px;"><span id="message">{{ reset_message }}</span></p>
+        <p>
+            In this daring CTF challenge, you're a vital member of a heist crew embarking on a mission to rob CityBank.
+            Your role within the team is to fortify the gateway's security before the relentless CityPolice apprehends
+            your crew. Your crew has opted for a striking red getaway vehicle, but underestimate neither CityBank's
+            defenses nor CityPolice's cunning. Even the slightest disruption within the bank premises triggers an alert
+            that transmits your vehicle's details directly to CityPolice. Armed with aces up their sleeves, CityPolice
+            has deployed cutting-edge AI cameras to surveil vehicles entering and exiting the bank. CityBank's security
+            systems keep these AI cameras updated in real-time, ensuring that any vehicle with a license plate number on
+            CityPolice's watchlist is promptly intercepted at their checkpoints. <span style="color: red;">Your mission: hack CityPolice's AI
+                cameras and secure a smooth escape for your red getaway car (43126) after the heist.</span>
         </p>
         <p>
-            Capture The Flag sinovida siz CityBank ni o‘marish missiyasiga yo‘l olgan talonchilar jamoasining muhim a’zosisiz.
-            Sizning vazifangiz – CityPolice sizning jamoangizni qo‘lga olishidan oldin bankka kirish yo‘lagining xavfsizligini mustahkamlash.
-            Sizning jamoangiz qochish uchun yorqin qizil avtomobildan foydalanishga qaror qildi. Ammo CityBank ning kuchli himoyasi va CityPolice ning ayyorligini aslo yoddan chiqarmang!
-            Bank hududidagi eng kichik harakat ham signal berib, avtomobilingiz haqidagi ma’lumotlarni to‘g‘ridan-to‘g‘ri CityPolice ga uzatadi.
-            Shuningdek, CityPolice zamonaviy AI kuzatuv kameralarini o‘rnatgan bo‘lib, bankka kirayotgan va chiqayotgan barcha transport vositalarini nazorat qiladi.
-            CityBank xavfsizlik tizimlari bu AI kameralarni real vaqtda yangilab boradi, shuning uchun CityPolice kuzatuv ro‘yxatiga tushgan har qanday transport vositasi blokpostlarda to‘xtatiladi. 
-            <span style="color: red;">
-                Sizning vazifangiz: CityPolice ning AI kuzatuv kameralarini buzib kirish va talonchilikdan so‘ng qizil mashinangiz (43126) ning xavfsiz chiqib ketishini ta’minlash.
-            </span>
+            Embark on your epic journey by hitting the "Start Challenge" button above. Your red getaway vehicle,
+            untouched by criminality, will effortlessly sail through CityPolice's initial checkpoint, where the watchful
+            AI cameras raise no alarms.
         </p>
         <p>
-            "Start Challenge" tugmasini bosib, epik sarguzashtingizni boshlang.
-            Jinoyatga aloqador bo‘lmagan qizil qochish mashinangiz CityPolice ning dastlabki nazorat punktidan bemalol o‘tadi, chunki kuzatuvchi AI kameralar hech qanday shubha uyg‘otmaydi. 
+            Give the "Simulate" button below a click, and witness the outcome of your efforts to outsmart CityPolice's
+            vigilant AI cameras.
         </p>
-        <p>
-            Quyidagi "Simulate" tugmasini bosing va CityPolice ning ehtiyotkor AI kameralarini aldashga bo‘lgan harakatlaringizning natijasini tomosha qiling.
-        </p>
-
         <form action="/simulate" method="POST" id="simulateform">
-            <button type="submit" id="submit-button" style="
-                background-color: #4CAF50;
-                border: none;
-                color: white;
-                padding: 15px 32px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                cursor: pointer;
-                border-radius: 10px;
-                box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.2);
-            ">Simulate</button>
+            <button type="submit" id="submit-button" style="background-color: #4CAF50; /* Green background */
+            border: none; /* No borders */
+            color: white; /* White text */
+            padding: 15px 32px; /* Some padding */
+            text-align: center; /* Center text */
+            text-decoration: none; /* No text decoration */
+            display: inline-block; /* Make it an inline block */
+            font-size: 16px; /* Font size */
+            margin: 4px 2px; /* Margin */
+            cursor: pointer; /* Mouse pointer on hover */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.2); /* Add a shadow */
+            //font-family: 'Courier New', Courier, monospace;
+            //font-weight: bold;
+          ">Simulate</button>
             <p><span id="message">{{ message }}</span></p>
         </form>
-
-        {% if flag %}
-          <div class="flag">
-            <strong>Flag:</strong> {{ flag }}
-          </div>
-        {% endif %}
-
         <div id="video-container" class="video-container">
             <video width="840" height="460" controls playsinline muted>
                 <source src="{{ url_for('static', filename=video_source) }}" type="video/mp4">
@@ -136,8 +128,6 @@
             </video>
         </div>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#simulateform').submit(function (event) {
@@ -151,18 +141,9 @@
                     contentType: false,
                     success: function (data) {
                         $('#message').text(data.message);
-                        if (data.flag) {
-                            // Agar AJAX orqali flag qaytsa, sahifaga qo'shish
-                            if ($('#flag-div').length === 0) {
-                                $('<div id="flag-div" class="flag"><strong>Flag:</strong> ' + data.flag + '</div>')
-                                    .insertAfter('#simulateform');
-                            } else {
-                                $('#flag-div').html('<strong>Flag:</strong> ' + data.flag);
-                            }
-                        }
                         var video = $('#video-container video');
                         video.find('source').attr('src', data.video_source);
-                        video[0].load();
+                        video[0].load();  
                         $('#video-container').show();
                     }
                 });
@@ -171,4 +152,3 @@
     </script>
 </body>
 </html>
-
