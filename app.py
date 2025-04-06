@@ -15,7 +15,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import logging
 log = logging.getLogger('werkzeug')
-log.disabled = True
+log.disabled = False  # Debug loglarini yoqish
+
+# Server tomonida sessiyalarni saqlash uchun Flask-Session ni import qilamiz
+from flask_session import Session
 
 __header__ = """
 Running...
@@ -36,6 +39,10 @@ print(__header__)
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'your_secret_key'
 app.config['UPLOAD_FOLDER'] = 'uploads'
+
+# Server tomonida sessiyalarni saqlash uchun sessiya turini "filesystem" qilib sozlaymiz
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 (x, y), _ = tf.keras.datasets.mnist.load_data()
 app.blockedid = '43126'
@@ -84,14 +91,12 @@ def FirstGateCheck(id_image):
     for num in id_image:
         num = num.reshape(1, 28, 28, 1)
         pred = first_model.predict(num)
-        id = id+str(np.argmax(pred))
+        id = id + str(np.argmax(pred))
         id_confidence.append(pred[0][np.argmax(pred)])
     return id, id_confidence
 
 
-def SecondGateCheck(id,  id_image, id_confidence, validation_check=True):
-
-    
+def SecondGateCheck(id, id_image, id_confidence, validation_check=True):
     smodel = os.path.join('models', 'SecondGateModel.h5')
     second_model = tf.keras.models.load_model(smodel)
     validated_id = ""
@@ -102,14 +107,11 @@ def SecondGateCheck(id,  id_image, id_confidence, validation_check=True):
             if round(pred[0][int(id[i])], 1) == round(id_confidence[i], 1):
                 pass
             else:
-                #print("'s ID was misclassified.")
                 return False
         validated_id = validated_id + str(np.argmax(pred))
     if validated_id == app.blockedid:
-        #print("ID banned.")
         return False
     else:
-        #print("Bypassed")
         return True
 
 
@@ -121,7 +123,7 @@ def generateRandomIdImage(id):
     id_image = []
     for num in id_list:
         while True:
-            index = random.randint(0, len(y))
+            index = random.randint(0, len(y) - 1)
             if y[index] == num:
                 image = x[index].reshape(1, 28, 28, 1)
                 pred = first_model.predict(image)
@@ -167,7 +169,6 @@ def RenderVideo():
     return render_template('CTFHomePage.html', video_source=video_source, message=message)
 
 
-
 @app.route('/CityPolice', methods=['GET'])
 def RenderHomePage():
     return render_template('index.html')
@@ -186,6 +187,7 @@ def ResetCTF():
     video_source = 'Busted.mp4'
     return render_template('CTFHomePage.html', video_source=video_source, reset_message="[CTF Reset was Successful]")
 
+
 @app.route('/admin', methods=['GET', 'POST'])
 def RenderAdminLoginPage():
     if request.method == 'POST':
@@ -196,6 +198,7 @@ def RenderAdminLoginPage():
             return redirect(url_for('PostHome'))
         return render_template('login.html', message="Invalid username or password")
     return render_template('login.html')
+
 
 @app.route('/home')
 def PostHome():
@@ -208,7 +211,6 @@ def PostHome():
 
 @app.route('/notification', methods=['GET'])
 def getnotification():
-
     if request.method == 'GET':
         if 'current_user' in session:
             current_user = session['current_user']
@@ -224,13 +226,11 @@ def upload_config():
             if 'config_file' in request.files:
                 config_file = request.files['config_file']
                 if config_file.filename != '' and config_file.filename.endswith('.zip'):
-                    file_path = os.path.join(
-                        app.config['UPLOAD_FOLDER'], 'user_file.zip')
-                    # Stream the file data and save it
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'user_file.zip')
+                    # Stream file data va faylni saqlash
                     with open(file_path, 'wb') as file:
                         while True:
-                            chunk = config_file.stream.read(
-                                10485760) 
+                            chunk = config_file.stream.read(10485760)
                             if not chunk:
                                 break
                             file.write(chunk)
@@ -252,40 +252,35 @@ def train_model():
             current_user = session['current_user']
             if 'current_user' in session and 'config_uploaded' in session:
                 upload_folder = app.config['UPLOAD_FOLDER']
-                # Check if there is an existing unzipped_user_file folder and delete it if it exists
+                # Agar unzipped_user_file papkasi mavjud bo'lsa, uni o'chirib tashlash
                 if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], 'unzipped_user_file')):
-                    shutil.rmtree(os.path.join(
-                        app.config['UPLOAD_FOLDER'], 'unzipped_user_file'))
-                # Check if the uploaded file exists in the upload folder
-                uploaded_file_path = os.path.join(
-                    upload_folder, 'user_file.zip')
+                    shutil.rmtree(os.path.join(app.config['UPLOAD_FOLDER'], 'unzipped_user_file'))
+                # Yuklangan fayl mavjudligini tekshirish
+                uploaded_file_path = os.path.join(upload_folder, 'user_file.zip')
                 if not os.path.exists(uploaded_file_path):
                     return render_template('home.html', message='File Not Found.', current_user=current_user, config_uploaded=False)
-                # Now, unzip the uploaded file
-                unzip_folder = os.path.join(
-                    upload_folder, 'unzipped_user_file')
+                # Endi zip faylni ochish
+                unzip_folder = os.path.join(upload_folder, 'unzipped_user_file')
                 os.makedirs(unzip_folder, exist_ok=True)
                 with zipfile.ZipFile(uploaded_file_path, 'r') as zip_ref:
                     zip_ref.extractall(unzip_folder)
-                # Check if there's a single .h5 file in the unzipped folder and no other files with other extensions
-                h5_files = [f for f in os.listdir(
-                    unzip_folder) if f.endswith('.h5')]
-                other_files = [f for f in os.listdir(
-                    unzip_folder) if not f.endswith('.h5')]
+                # Unzipped papkada faqat bitta .h5 fayl borligini tekshirish
+                h5_files = [f for f in os.listdir(unzip_folder) if f.endswith('.h5')]
+                other_files = [f for f in os.listdir(unzip_folder) if not f.endswith('.h5')]
                 if len(h5_files) == 1 and len(other_files) <= 0:
-                    # Create an instance of the model
+                    # Model instansiyasini yaratish
                     model = create_model()
                     h5_file_name = h5_files[0]
-                    # Load the preprocessed dataset from the HDF5 file
-                    with h5py.File('uploads/unzipped_user_file/' +h5_file_name, 'r') as file:
+                    # HDF5 fayldan datasetni yuklash
+                    with h5py.File(os.path.join('uploads', 'unzipped_user_file', h5_file_name), 'r') as file:
                         x_train = file['x_train'][:]
                         y_train = file['y_train'][:]
                         x_test = file['x_test'][:]
                         y_test = file['y_test'][:]
-                    # Train the model
+                    # Modelni o'qitish
                     model.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test), verbose=1)
-                    # Save the trained model to a file
-                    model.save('models/'+'SecondGateModel.h5')
+                    # O'qitilgan modelni saqlash
+                    model.save(os.path.join('models', 'SecondGateModel.h5'))
                     return render_template('home.html', message='Model Trained Successfully.', current_user=current_user, config_uploaded=True)
                 else:
                     return render_template('home.html', message='Invalid File Formats Detected. Stopping Model Training.', current_user=current_user, config_uploaded=False)
@@ -296,7 +291,7 @@ def train_model():
 
 @app.route('/logout')
 def logout():
-    # Remove the current user from the session
+    # Joriy foydalanuvchini sessiyadan olib tashlash
     session.pop('current_user', None)
     return redirect(url_for('RenderAdminLoginPage'))
 
