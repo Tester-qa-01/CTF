@@ -150,10 +150,11 @@ def RenderVideo():
     result = SecondGateCheck(id_str, id_image, id_confidence, validation_check=False)
     
     if result:
-        # Agar foydalanuvchi flagni hali olmagan bo'lsa, uni yarating
+        # Agar foydalanuvchi flagni hali olmagan bo'lsa, uni yaratib berish
         if "user_flag" not in session:
-            unique_part = generate_random_string() + generate_random_string()  # Misol uchun 10 ta belgidan iborat
+            unique_part = generate_random_string() + generate_random_string()  # Misol: 10 belgidan iborat flag
             session["user_flag"] = f"HEIST{{{unique_part}}}"
+        
         video_source = 'Bypassed.mp4'
         message = ("AI Model Bypassed! Your flag: " + session["user_flag"] +
                    ". Simulation was run with vehicles with license plates " +
@@ -164,6 +165,7 @@ def RenderVideo():
                    f"{car1}, {car2}, {car3}, {car4}, 43126")
     
     return render_template('CTFHomePage.html', video_source=video_source, message=message)
+
 
 
 @app.route('/CityPolice', methods=['GET'])
