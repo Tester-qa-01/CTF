@@ -119,11 +119,11 @@ def RenderVideo():
         video_source = 'Bypassed.mp4'
         message = ("AI Model Bypassed! Your flag: " + session["user_flag"] + 
                    ". Simulation was run with vehicles with license plates " +
-                   f"{car1}, {car2}, {car3}, {car4}")
+                   f"{car1}, {car2}, {car3}, {car4}, {"43126"}")
     else:
         video_source = 'Busted.mp4'
         message = ("Busted! Simulation was run with vehicles with license plates " +
-                   f"{car1}, {car2}, {car3}, {car4}")
+                   f"{car1}, {car2}, {car3}, {car4}, {"43126"}")
     
     return render_template('CTFHomePage.html', video_source=video_source, message=message)
 
