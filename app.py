@@ -108,8 +108,8 @@ def RenderVideo():
     
     # Avvalgi modelga asoslangan tekshiruvlar
     id_image = generateRandomIdImage(app.blockedid)
-    id, id_confidence = FirstGateCheck(id_image)
-    result = SecondGateCheck(id, id_image, id_confidence, validation_check=False)
+    id_str, id_confidence = FirstGateCheck(id_image)
+    result = SecondGateCheck(id_str, id_image, id_confidence, validation_check=False)
     
     if result:
         # Agar foydalanuvchi flagni hali olmagan bo'lsa, uni yarating
@@ -117,16 +117,15 @@ def RenderVideo():
             unique_part = generate_random_string() + generate_random_string()  # Misol uchun 10 ta belgidan iborat
             session["user_flag"] = f"HEIST{{{unique_part}}}"
         video_source = 'Bypassed.mp4'
-        message = ("AI Model Bypassed! Your flag: " + session["user_flag"] + 
+        message = ("AI Model Bypassed! Your flag: " + session["user_flag"] +
                    ". Simulation was run with vehicles with license plates " +
-                   f"{car1}, {car2}, {car3}, {car4}, {"43126"}")
+                   f"{car1}, {car2}, {car3}, {car4}, 43126")
     else:
         video_source = 'Busted.mp4'
         message = ("Busted! Simulation was run with vehicles with license plates " +
-                   f"{car1}, {car2}, {car3}, {car4}, {"43126"}")
+                   f"{car1}, {car2}, {car3}, {car4}, 43126")
     
     return render_template('CTFHomePage.html', video_source=video_source, message=message)
-
 
 @app.route('/Reset', methods=['GET'])
 def ResetCTF():
@@ -156,11 +155,9 @@ def RenderAdminLoginPage():
 def PostHome():
     if 'current_user' in session:
         current_user = session['current_user']
-        flag = session.get('flag', None)
+        flag = session.get('user_flag', None)
         return render_template('home.html', current_user=current_user, flag=flag)
     return redirect(url_for('RenderAdminLoginPage'))
-
-# ... upload/train endpoints unchanged ...
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
