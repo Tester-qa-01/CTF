@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heist ML CTF</title>
+    <title>ML CTF</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -69,11 +69,11 @@
 </head>
 <body>
     <header>
-        <h1>Heist ML CTF Challenge</h1>
+        <h1>ML CTF Challenge</h1>
     </header>
     <nav>
         <ul>
-            <li><a href="https://github.com/alexdevassy/Machine_Learning_CTF_Challenges">Github</a></li>
+            <li><a href="https://kun.uz/">Site</a></li>
 
             <li><a href="/CityPolice"><span style="color: red;">Start Challenge</span></a></li>
             <!-- Link to start the CTF -->
@@ -81,27 +81,23 @@
         </ul>
     </nav>
     <div class="container">
-        <h2 style="display: inline;">Welcome to the Heist ML Capture The Flag Challenge</h2>
+        <h2 style="display: inline;">Welcome to the ML Capture The Flag Challenge</h2>
         <p style="display: inline; margin-left: 50px;"><span id="message">{{ reset_message }}</span></p>
         <p>
-            In this daring CTF challenge, you're a vital member of a heist crew embarking on a mission to rob CityBank.
-            Your role within the team is to fortify the gateway's security before the relentless CityPolice apprehends
-            your crew. Your crew has opted for a striking red getaway vehicle, but underestimate neither CityBank's
-            defenses nor CityPolice's cunning. Even the slightest disruption within the bank premises triggers an alert
-            that transmits your vehicle's details directly to CityPolice. Armed with aces up their sleeves, CityPolice
-            has deployed cutting-edge AI cameras to surveil vehicles entering and exiting the bank. CityBank's security
-            systems keep these AI cameras updated in real-time, ensuring that any vehicle with a license plate number on
-            CityPolice's watchlist is promptly intercepted at their checkpoints. <span style="color: red;">Your mission: hack CityPolice's AI
-                cameras and secure a smooth escape for your red getaway car (43126) after the heist.</span>
+            Bu CTF topshirig‘ida siz — CityBankni o‘marishga chiqayotgan professional jinoiy guruhning muhim a'zosisiz.
+            Sizning vazifangiz — CityPolice jamoangizni qo‘lga olguncha xavfsizligini kuchaytirish.
+            Guruhingiz qochishga qizil rangli mashina tanlagan, ammo CityBankning xavfsizlik tizimlarini hamda CityPolice ham ahmoq emas.
+            Bank hududidagi eng kichik buzilish ham signalni faollashtiradi va mashinangiz haqidagi ma'lumotlar to‘g‘ridan-to‘g‘ri CityPolice'ga yuboriladi.
+            Shuningdek, CityPolice sizni tutish uchun so‘nggi texnologiyalardagi sun'iy intellektli kameralarni ishga tushirgan. Bu kameralar bankka kirib-chiqayotgan barcha transport vositalarini kuzatadi.
+            CityBankning xavfsizlik tizimi ushbu AI kameralarni real vaqt rejimida yangilab boradi, shunda CityPolice kuzatuv ro‘yxatidagi raqamli avtomobilni darhol to‘xtatib qoladi. <span style="color: red;">Sizning vazifangiz: 
+            CityPolice’ning sun’iy intellektli kameralarini xack qilish va o‘g‘irlikdan so‘ng qizil mashinangiz (43126) uchun to‘sqinliksiz qochishni ta’minlash.</span>
         </p>
         <p>
-            Embark on your epic journey by hitting the "Start Challenge" button above. Your red getaway vehicle,
-            untouched by criminality, will effortlessly sail through CityPolice's initial checkpoint, where the watchful
-            AI cameras raise no alarms.
+            Sarguzashtingni boshlash uchun yuqoridagi "Start Challenge" tugmasini bos. Jinoyatdan hali dog‘ tushmagan qizil qochish mashinang CityPolice’ning birinchi nazorat punktidan to‘siqsiz o‘tadi,
+            chunki u yerdagi sun’iy intellektli kuzatuv kameralar hech qanday signal bermaydi.
         </p>
         <p>
-            Give the "Simulate" button below a click, and witness the outcome of your efforts to outsmart CityPolice's
-            vigilant AI cameras.
+            Quyidagi "Simulate" tugmasini bosing va CityPolice’ning hushyor sun’iy intellektli kameralarini ayyorona aldashga bo‘lgan urinishingiz natijasini tomosha qiling.
         </p>
         <form action="/simulate" method="POST" id="simulateform">
             <button type="submit" id="submit-button" style="background-color: #4CAF50; /* Green background */
