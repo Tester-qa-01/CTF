@@ -1,1 +1,7 @@
-Flask==2.2.2Werkzeug==2.2.2h5py==3.10.0numpy==1.24.4tensorflow==2.14.0flask-session==0.4.0  # Flask sessiyalarini qo'llab-quvvatlash uchun
+Flask==2.2.2
+Werkzeug==2.2.2
+h5py==3.10.0
+numpy==1.24.4
+tensorflow==2.14.0
+flask-session==0.4.0  # Flask sessiyalarini qo'llab-quvvatlash uchun
+

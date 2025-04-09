@@ -94,26 +94,30 @@ def FirstGateCheck(id_image):
     return id, id_confidence
 
 
-def SecondGateCheck(id, id_image, id_confidence, validation_check=True):
-    smodel = os.path.join('models', 'SecondGateModel.h5')
-    second_model = tf.keras.models.load_model(smodel)
-    validated_id = ""
-    for i in range(len(id_image)):
-        num = id_image[i].reshape(1, 28, 28, 1)
-        pred = second_model.predict(num)
-        if validation_check:
-            if round(pred[0][int(id[i])], 1) == round(id_confidence[i], 1):
-                pass
-            else:
-                # print("'s ID was misclassified.")
-                return False
-        validated_id = validated_id + str(np.argmax(pred))
-    if validated_id == app.blockedid:
-        # print("ID banned.")
+def SecondGateCheck(id, id_image, id_confidence, validation_check=True, session_id=None):
+    try:
+        smodel = os.path.join('models', f'{session_id}.h5')
+        second_model = tf.keras.models.load_model(smodel)
+        print(second_model)
+        validated_id = ""
+        for i in range(len(id_image)):
+            num = id_image[i].reshape(1, 28, 28, 1)
+            pred = second_model.predict(num)
+            if validation_check:
+                if round(pred[0][int(id[i])], 1) == round(id_confidence[i], 1):
+                    pass
+                else:
+                    # print("'s ID was misclassified.")
+                    return False
+            validated_id = validated_id + str(np.argmax(pred))
+        if validated_id == app.blockedid:
+            # print("ID banned.")
+            return False
+        else:
+            # print("Bypassed")
+            return True
+    except:
         return False
-    else:
-        # print("Bypassed")
-        return True
 
 
 def generateRandomIdImage(id):
@@ -151,7 +155,7 @@ def RenderVideo():
     id_image = generateRandomIdImage(app.blockedid)
     id, id_confidence = FirstGateCheck(id_image)
     result = SecondGateCheck(id, id_image, id_confidence,
-                             validation_check=False)
+                             validation_check=False, session_id=session['session_id'])
     if result:
         video_source = 'Bypassed.mp4'
         message = "AI Model Bypassed!, INHA - CTF{3P7N8T1VqWAr5nRDiCUyJg}. Simulation was run with vechicles with license plates " + car1 + ", " + car2 + ", " + car3 + ", " + car4 + ", " + "43126"
@@ -170,15 +174,13 @@ def RenderHomePage():
 def ResetCTF():
     # Define the paths
     models_folder = 'models'
-    first_gate_model_path = os.path.join(models_folder, 'FirstGateModel.h5')
-    second_gate_model_path = os.path.join(models_folder, 'SecondGateModel.h5')
+    second_gate_model_path = os.path.join(models_folder, f'{session["session_id"]}.h5')
 
     # Check if "SecondGateModel.h5" exists and delete it
     if os.path.exists(second_gate_model_path):
         os.remove(second_gate_model_path)
 
     # Copy and rename "FirstGateModel.h5" to "SecondGateModel.h5"
-    shutil.copy(first_gate_model_path, second_gate_model_path)
     video_source = 'Busted.mp4'
     return render_template('CTFHomePage.html', video_source=video_source, reset_message="[CTF Reset was Successful]")
 
@@ -290,7 +292,7 @@ def train_model():
                     # Train the model
                     model.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test), verbose=1)
                     # Save the trained model to a file
-                    model.save('models/' + 'SecondGateModel.h5')
+                    model.save('models/' + f'{session["session_id"]}.h5')
                     return render_template('home.html', message='Model Trained Successfully.',
                                            current_user=current_user, config_uploaded=True)
                 else:
